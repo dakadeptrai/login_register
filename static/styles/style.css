@@ -1,0 +1,17 @@
+body{
+    background:linear-gradient(0deg, rgba(28,20,163,1) 0%, rgba(15,81,161,1) 49%, rgba(0,212,255,1) 100%);
+    border:none;
+    cursor: pointer;
+    height: 100vh;
+}
+#bodySection{
+    height: 80vh;
+    width: 50%;
+    margin: auto;
+    border: 30px solid white;
+    background-color: #ffffff;
+    border-radius: 13px;
+}
+h1{
+    text-align: center;
+}
