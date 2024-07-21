@@ -1,6 +1,18 @@
 var inputElement = document.getElementById("Newtask");
 var count = 0
 
+fetch('/get_data')
+  .then(response => response.json())
+  .then(data => {
+    // Chuyển đổi chuỗi JSON thành đối tượng JavaScript
+    // Hiển thị ra màn hình
+    addd(data)
+    console.log(data);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+
 function addd(){
     var start = document.getElementById('Start-day');
     var end = document.getElementById('End-day');

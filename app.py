@@ -1,4 +1,4 @@
-from flask import Flask,render_template,request,redirect,url_for
+from flask import Flask,render_template,request,redirect,url_for,jsonify
 from markupsafe import escape
 import pymongo
 from werkzeug.security import check_password_hash,generate_password_hash
@@ -12,6 +12,7 @@ except Exception:
     print("Error", Exception)
 db = client["mydatabase"]
 col = db['user_data']
+col2 = db['todolist']
 
 for x in col.find():
     user = x["user"]
@@ -71,6 +72,13 @@ def handle_post():
         else:
             # Username not found
             return render_template("register.html")  # Pass error message      
-    return render_template("register.html")  # Pass error message      
+    return render_template("register.html")  # Pass error message  
+#=========================================
+@app.route('/get_data', methods=['GET'])
+def get_data():
+    data = list(col2.find({}, {'_id': 0}))
+    print(data)
+    return jsonify(data)
+#=========================================   
 if __name__ == "__main__":
     app.run()

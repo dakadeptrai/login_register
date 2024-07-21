@@ -9,17 +9,15 @@
     <body>
         <section id = 'bodySection'>
             <h1>ToDo List</h1>
-            <label for="Start-day">Start: </label>
-            <input type="date" id="Start-day">
-            <label for="End-day">End: </label>
-            <input type="date" id="End-day">
-            <div class="container">
-                <span class="item"></span>
-                <div id="contain-input">
-                    <input type="text" id="Newtask" class="item" placeholder="New Task">
-                    <div id="contain-button"><button class="item" id="Add" onclick="addd()">Add</button></div>
-                </div>
-                <span></span><br>
+            <div id="time">
+            </div>
+                <label for="Start-day">Start: </label>
+                <input type="date" id="Start-day">
+                <label for="End-day">End: </label>
+                <input type="date" id="End-day">
+            <div id="contain-input">
+                <input type="text" id="Newtask" class="item" placeholder="New Task">
+                <div id="contain-button"><button class="item" id="Add" onclick="addd()">Add</button></div>
             </div>
             <div id = "scroll">
             <table id = 'taskTable'>

@@ -3,6 +3,14 @@
     rgba(232, 126, 126, 0.8) 0%,
       #a02929 100%);
 }
+
+/* Reset html */
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
     height: 100vh;
     font-family: Arial, sans-serif;
@@ -37,32 +45,36 @@ body {
     border-radius: 4px;
   }
   
-  .container {
+  #contain-input {
+    height: 48px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    margin-top: 20px;
-  }
-  
-  .item {
-    margin: 5px;
+    /* justify-content: center; */
   }
   
   #contain-input input {
+    height: 40px;
     width: 80%;
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    display: inline;
+  }
+
+  #contain-input #contain-button{
+    width: 18%;
+    margin-left: 2%;
   }
   
   #contain-button button {
+    height: 40px;
+    width: 100%;
     padding: 8px 15px;
     border: none;
     background-color: #a02929;
     color: white;
     border-radius: 4px;
     cursor: pointer;
+
   }
   
   #scroll {
