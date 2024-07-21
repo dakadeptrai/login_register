@@ -1,8 +1,15 @@
+:root {
+  --gradient: linear-gradient(180deg,
+    rgba(232, 126, 126, 0.8) 0%,
+      #a02929 100%);
+}
 body {
+    height: 100vh;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 20px;
-    background-color: #f0f0f0;
+    background: var(--gradient);
+    overflow: hidden;
   }
   
   #bodySection {
@@ -46,12 +53,13 @@ body {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    display: inline;
   }
   
   #contain-button button {
     padding: 8px 15px;
     border: none;
-    background-color: #4CAF50;
+    background-color: #a02929;
     color: white;
     border-radius: 4px;
     cursor: pointer;
@@ -78,5 +86,8 @@ body {
   
   th {
     background-color: #f2f2f2;
+  }
+  #Newtask{
+    display: inline;
   }
   
