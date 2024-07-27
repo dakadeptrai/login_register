@@ -3,22 +3,36 @@ from markupsafe import escape
 import pymongo
 from werkzeug.security import check_password_hash,generate_password_hash
 #===========================================================================================================
-connection_str="mongodb+srv://nguyendakacun:htUezXTkL0llRnwa@dangkhang.nbpxo57.mongodb.net/?retryWrites=true&w=majority&appName=DangKhang"
-users_value={}
+connection_str = "mongodb+srv://mailongkf:22LCNuBgzPZksiMX@cluster0-mailong.4lpjsis.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0-MaiLong"
 try:
+    # Tạo kết nối đến MongoDB
     print("Connect done")
     client = pymongo.MongoClient(connection_str)
 except Exception:
-    print("Error", Exception)
-db = client["mydatabase"]
-col = db['user_data']
-col2 = db['todolist']
+    # Nếu kết nối bị lỗi
+    print("Error" + Exception)
 
-for x in col.find():
-    user = x["user"]
-    password = x["password"]
-    print(x)
-    users_value.update({user:password})
+# Truy cập vào cơ sở dữ liệu
+
+mydb = client["mydatabase"]
+mycol = mydb["todolist"]
+mycol_2 = mydb["user_data"]
+print("mycol_2: ", mycol_2)
+
+todo_list = []
+users = {}
+
+for x in mycol.find():
+    todo_list.append(x)
+
+for x in mycol_2.find():
+	print(x["user"])  # trả về dic
+	print(x["password"])
+	user = x["user"]
+	password = x["password"]
+    # user_value.append(x)
+	# lấy dữ liệu từ x thêm vào user_value
+	users.update({user:password})
 #===========================================================================================================
 app = Flask(__name__)
 
@@ -50,7 +64,7 @@ def handle_get():
         username = request.form["username"]
         password = request.form["password"]
         print("username: "+ username+" password: "+ password)
-        if username in users_value and users_value[username]==password:
+        if username in users and users[username]==password:
                 # Successful login, redirect to todolist
                 return render_template("todolist.html")
         else:
@@ -67,7 +81,7 @@ def handle_post():
         password = request.form["password"]
         if username != "" and password !="":
             add_user={"user": username,"password":password}
-            X = col.insert_one(add_user)
+            X = mycol.insert_one(add_user)
             return render_template("todolist.html")
         else:
             # Username not found
@@ -76,9 +90,45 @@ def handle_post():
 #=========================================
 @app.route('/get_data', methods=['GET'])
 def get_data():
-    data = list(col2.find({}, {'_id': 0}))
+    data = list(mycol_2.find({}, {'_id': 0}))
     print(data)
     return jsonify(data)
+def add_task():
+    task_no = request.json['No']
+    task_check = request.json['Check']
+    task_text = request.json['text']
+    task_start_date = request.json['start_date']
+    task_end_date = request.json['end_date']
+    task_status = request.json['status']
+    print(str(task_text))
+    new_task = {
+            "No": task_no,
+            "Check": task_check,
+            "text": task_text,
+            "start_date": task_start_date,
+            "end_date": task_end_date,
+            "status": task_status
+          }
+
+
+    result = mycol_2.insert_one(new_task)
+    new_task['_id'] = str(result.inserted_id)
+
+    # Trả về todolist lên lại js
+    data = list(mycol_2.find({}, {'_id': 0}))
+    return jsonify(data)
+
+@app.route('/delete_task', methods=['POST'])
+def delete_task():
+    print("No: " , )
+    task_id = request.json['No']
+    result = mycol_2.delete_one({'No': task_id})
+
+    # return jsonify({'_id': task_id})
+    # Trả về todolist lên lại js
+    data = list(mycol_2.find({}, {'_id': 0}))
+    return jsonify(data)
+
 #=========================================   
 if __name__ == "__main__":
     app.run()

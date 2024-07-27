@@ -1,139 +1,116 @@
-var inputElement = document.getElementById("Newtask");
-var count = 0
+// Retrieve todo from local storage or initialize an empty array
+// let todo = JSON.parse(localStorage.getItem("todo")) || [];
+const todoInput = document.getElementById("todoInput");
+const todoList = document.getElementById("todoList");
+const todoCount = document.getElementById("todoCount");
+const addButton = document.querySelector(".btn");
+const deleteButton = document.getElementById("deleteButton");
+// ---------------------------------------------------------
 
+// Lấy data 
 fetch('/get_data')
   .then(response => response.json())
   .then(data => {
     // Chuyển đổi chuỗi JSON thành đối tượng JavaScript
     // Hiển thị ra màn hình
-    addd(data)
+    displayTasks(data)
     console.log(data);
   })
   .catch(error => {
     console.error('Error:', error);
   });
 
-function addd(){
-    var start = document.getElementById('Start-day');
-    var end = document.getElementById('End-day');
-    if (inputElement.value == "" ){
-        window.alert('pls write something');
-        return;
+// Initialize
+document.addEventListener("DOMContentLoaded", function () {
+  addButton.addEventListener("click", addTask);
+  todoInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevents default Enter key behavior
+      addTask();
     }
-    if(start.value==='' || end.value===''){
-        window.alert('Please enter start-day and end-day');
-        return;
-    }
-    if(start.value>end.value){
-        end.value=start.value
-    }
-    
-    else{
-        
-        const tr = document.createElement("tr");
-        count += 1;
-        tr.id = count;
-        tr.innerHTML=`
-        <td><h4>${count}</h4></td>
-        <td><input type="checkbox" id="Todo1" onchange="checkcomplete(this)"></td>
-        <td><label for="Todo1">${inputElement.value}</label></td>
-        <td>${start.value}</td>
-        <td>${end.value}</td>
-        <td><span id = "Status">Incomplete</span></td>
-        <td><button onclick="deletetask(${count})">
-                <span class="material-symbols-outlined">
-                    delete
-                </span>
-            </button>
-        </td>
-        <td><button onclick="editTask(${count})">
-            <span class="material-symbols-outlined">
-                edit
-                </span>
-            </button>
-        </td>`
-        
-        document.getElementById("taskList").appendChild(tr);
-        inputElement.value='';
-        start.value='';
-        end.value='';
-    } 
-   
+  });
+  deleteButton.addEventListener("click", deleteAllTasks);
+  // displayTasks();
+});
+
+
+function addTask() {
+  const newTask = todoInput.value.trim();
+  if (newTask !== "") {
+    fetch("/add_task", {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ text: newTask })
+    })
+     .then(response => response.json())
+     .then(data => {
+      // Xử lý dữ liệu trả về
+      console.log(data);
+    })
+    console.log("addTask_js")
+    todo.push({ text: newTask, disabled: false });
+    saveToLocalStorage();
+    todoInput.value = "";
+    displayTasks();
+  }
 }
-function checkcomplete(checkbox){
-    var s = checkbox.parentNode.parentNode;
-    var Stat = document.getElementById('Status'); 
-    if(checkbox.checked){
-        s.setAttribute('style', 'background-color:green;');
-        Stat.textContent="Completed";
-    }
-    else{
-        s.setAttribute('style', 'background-color:white;');
-        Stat.textContent="Incomplete"; 
-    }
 
+function displayTasks(todo) {
+  // ----------------------------------------------------------------------------------
+  todoList.innerHTML = "";
+  todo.forEach((item, index) => {
+    const p = document.createElement("p");
+    p.innerHTML = `
+      <div class="todo-container">
+        <input type="checkbox" class="todo-checkbox" id="input-${index}" ${
+      item.disabled ? "checked" : ""
+    }>
+        <p id="todo-${index}" class="${
+      item.disabled ? "disabled" : ""
+    }" onclick="editTask(${index})">${item.text}</p>
+      </div>
+    `;
+    p.querySelector(".todo-checkbox").addEventListener("change", () =>
+      toggleTask(index)
+    );
+    todoList.appendChild(p);
+  });
+  todoCount.textContent = todo.length;
 }
-function deletetask(taskId){
-    var bruh = document.getElementById(taskId);
-    if(bruh){
-        bruh.parentNode.removeChild(bruh);
-    } else{
-        window.alert('Id not found');
+
+function editTask(index) {
+  const todoItem = document.getElementById(`todo-${index}`);
+  const existingText = todo[index].text;
+  const inputElement = document.createElement("input");
+
+  inputElement.value = existingText;
+  todoItem.replaceWith(inputElement);
+  inputElement.focus();
+
+  inputElement.addEventListener("blur", function () {
+    const updatedText = inputElement.value.trim();
+    if (updatedText) {
+      todo[index].text = updatedText;
+      saveToLocalStorage();
     }
+    displayTasks();
+  });
 }
-// function edit(taskId){
-//     var task=document.getElementById(taskId);
-//     if(task){
-//     var labelElement = task.querySelector('label');
-//     var startElement = task.querySelector('td:nth-child(4)');
-//     var endElement = task.querySelector('td:nth-child(5)');
-//     var newTask = prompt('Enter new task:');
-//     var newStart = prompt('Enter new Start day:');
-//     var newEnd = prompt('Enter new End day:');
-//     labelElement.textContent=newTask;
-//     startElement.textContent=newStart;
-//     endElement.textContent=newEnd;}
-    
-// }
-function editTask(taskId){
-    var taskToEdit = document.getElementById(taskId);
-    var taskInput = document.getElementById('Newtask');
-    var start = document.getElementById('Start-day');
-    var end = document.getElementById('End-day');
-    var td = taskToEdit.getElementsByTagName('td');
 
-    taskInput.value=td[2].textContent;
-    start.value=td[3].textContent;
-    end.value = td[4].textContent;
-
-    var addButton = document.getElementById('Add');
-    addButton.textContent='Update';
-
-    addButton.onclick = function(){
-        saveChanges(taskId);
-    };
+function toggleTask(index) {
+  todo[index].disabled = !todo[index].disabled;
+  saveToLocalStorage();
+  // displayTasks();
 }
-function saveChanges(taskId){
-    var taskToEdit = document.getElementById(taskId);
-    var taskInput = document.getElementById('Newtask');
-    var start = document.getElementById('Start-day');
-    var end = document.getElementById('End-day');
-    var td = taskToEdit.getElementsByTagName('td');
 
-    if(start.value>end.value){
-        end.value=start.value
-    }
+function deleteAllTasks() {
+  todo = [];
+  saveToLocalStorage();
+  // displayTasks();
+}
 
-    td[2].textContent = taskInput.value;
-    td[3].textContent = start.value;
-    td[4].textContent = end.value;
-
-    var addButton = document.getElementById('Add');
-    addButton.textContent='Add';
-    
-    addButton.onclick = addd;
-    
-    taskInput.value='';
-    start.value='';
-    end.value='';
+function saveToLocalStorage() {
+  localStorage.setItem("todo", JSON.stringify(todo));
 }
